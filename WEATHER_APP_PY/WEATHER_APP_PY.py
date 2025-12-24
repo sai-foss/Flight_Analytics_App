@@ -2,7 +2,7 @@ import json
 
 import reflex as rx
 
-BORDER_GRADIENT = "linear-gradient(90deg, #73BCE3, #E37383)"
+BORDER_GRADIENT = "linear-gradient(90deg, #62109F, #41A67E)"
 
 PARTICLES_CDN = "https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"
 
@@ -66,6 +66,7 @@ def gradient_border_card(*children: rx.Component, **props) -> rx.Component:
     return rx.box(
         *children,
         border="2px solid transparent",
+        # default accent for cards
         background=f"linear-gradient({bg}, {bg}) padding-box, {BORDER_GRADIENT} border-box",
         border_radius="14px",
         padding="1.25rem",
@@ -76,7 +77,7 @@ def gradient_border_card(*children: rx.Component, **props) -> rx.Component:
 def airports_card() -> rx.Component:
     return gradient_border_card(
         rx.vstack(
-            rx.heading("SOURCE AIRPORT", size="7", weight="bold"),
+            rx.heading("ORIGIN AIRPORT", size="7", weight="bold"),
             rx.input(
                 placeholder="e.g., SFO",
                 value=RouteState.source_airport,
