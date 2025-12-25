@@ -2,6 +2,8 @@ import json
 
 import reflex as rx
 
+from .airport_list import *
+
 # function we are using to create colored borders for all boxes in the app
 BORDER_GRADIENT = "linear-gradient(90deg, #5b4e77, #55d6be)"
 DELAYED_BORDER_GRADIENT = "linear-gradient(90deg, #55d6be, #5b4e77)"  # example
@@ -42,23 +44,68 @@ class RouteState(rx.State):
     dest_airport: str = ""
     months_back: int = 3
 
+    @rx.event
+    def set_months_back(self, months: int):
+        self.months_back = max(1, int(months))
+
+    def _norm_code(self, value: str) -> str:
+        v = (value or "").upper().strip()
+        return v[:3]
+
     def set_source_airport(self, value: str):
-        self.source_airport = (value or "").upper().strip()
+        v = self._norm_code(value)
+        self.source_airport = v
 
-    def set_dest_airport(self, value: str):
-        self.dest_airport = (value or "").upper().strip()
-
-    def set_months_back(self, value: str):
-        try:
-            v = int(value)
-        except (TypeError, ValueError):
+        if len(v) == 3 and v not in AIRPORT_CODE_SET:
+            # self.source_airport = ""
+            yield rx.toast.error("Unknown origin airport code. Pick one from the list.")
             return
 
-        self.months_back = max(1, v)
+        if v and v == self.dest_airport:
+            # self.source_airport = ""
+            yield rx.toast.warning("Origin and destination must be different.")
+            return
 
-    # method to trigger analysis pipeline here, its empty for now
+    def set_dest_airport(self, value: str):
+        v = self._norm_code(value)
+        self.dest_airport = v
+
+        if len(v) == 3 and v not in AIRPORT_CODE_SET:
+            # self.dest_airport = ""
+            yield rx.toast.error(
+                "Unknown destination airport code. Pick one from the list."
+            )
+            return
+
+        if v and v == self.source_airport:
+            # self.dest_airport = ""
+            yield rx.toast.warning("Origin and destination must be different.")
+            return
+
     def analyze(self):
-        pass
+        # method to trigger analysis pipeline here, its empty for now
+        #
+        #
+        #
+        #
+        #
+        # missing inputs
+        if not self.source_airport or not self.dest_airport:
+            yield rx.toast.warning(
+                "Enter both origin and destination before analyzing."
+            )
+            return
+
+        # defensive checks
+        if self.source_airport == self.dest_airport:
+            yield rx.toast.error("Origin and destination cannot be the same.")
+            return
+
+        if (self.source_airport not in AIRPORT_CODE_SET) or (
+            self.dest_airport not in AIRPORT_CODE_SET
+        ):
+            yield rx.toast.error("Please select valid airport codes from the list.")
+            return
 
 
 HORIZON_PRESETS = [
@@ -111,6 +158,9 @@ def airports_card() -> rx.Component:
                 width="100%",
                 height="3rem",
                 font_size="1.1rem",
+                max_length=3,
+                pattern="[A-Za-z]{3}",
+                list=AIRPORT_DATALIST_ID,
             ),
             rx.box(height="0.75rem"),
             rx.heading("Destination Airport", size="6"),
@@ -121,6 +171,9 @@ def airports_card() -> rx.Component:
                 width="100%",
                 height="3rem",
                 font_size="1.1rem",
+                max_length=3,
+                pattern="[A-Za-z]{3}",
+                list=AIRPORT_DATALIST_ID,
             ),
             spacing="3",
             align="stretch",
@@ -142,7 +195,7 @@ def time_horizon_card() -> rx.Component:
                 *[
                     rx.button(
                         label,
-                        on_click=RouteState.set_months_back(str(months)),
+                        on_click=RouteState.set_months_back(months),
                         variant=rx.cond(
                             RouteState.months_back == months,
                             "solid",
@@ -248,6 +301,7 @@ def page_shell(*children: rx.Component) -> rx.Component:
     return rx.box(
         particles_background(),
         rx.box(
+            airport_datalist(),  # add this once
             *children,
             position="relative",
             z_index="0",
