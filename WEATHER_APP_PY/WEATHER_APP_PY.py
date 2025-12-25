@@ -250,6 +250,7 @@ def top_cards() -> rx.Component:
         time_horizon_card(),
         width="100%",
         max_width="72rem",
+        margin_top=rx.breakpoints(initial="1rem", md="2rem"),
         margin_x="auto",
         gap="1rem",
         flex_wrap="wrap",
