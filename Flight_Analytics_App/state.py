@@ -27,11 +27,6 @@ class RouteState(rx.State):
             yield rx.toast.error("Unknown origin airport code. Pick one from the list.")
             return
 
-        if v and v == self.dest_airport:
-            # self.source_airport = ""
-            yield rx.toast.warning("Origin and destination must be different.")
-            return
-
     @rx.event
     def set_dest_airport(self, value: str):
         v = self._norm_code(value)
@@ -44,29 +39,13 @@ class RouteState(rx.State):
             )
             return
 
-        if v and v == self.source_airport:
-            # self.dest_airport = ""
-            yield rx.toast.warning("Origin and destination must be different.")
-            return
-
     @rx.event
     def analyze(self):
-        # method to trigger analysis pipeline here, its empty for now
-        #
-        #
-        #
-        #
-        #
-        # missing inputs
+
         if not self.source_airport or not self.dest_airport:
             yield rx.toast.warning(
                 "Enter both origin and destination before analyzing."
             )
-            return
-
-        # defensive checks
-        if self.source_airport == self.dest_airport:
-            yield rx.toast.error("Origin and destination cannot be the same.")
             return
 
         if (self.source_airport not in AIRPORT_CODE_SET) or (
@@ -74,3 +53,21 @@ class RouteState(rx.State):
         ):
             yield rx.toast.error("Please select valid airport codes from the list.")
             return
+
+            # defensive checks (when both origin = destination)
+        if (
+            (self.source_airport in AIRPORT_CODE_SET)
+            and (self.dest_airport in AIRPORT_CODE_SET)
+            and (self.source_airport == self.dest_airport)
+        ):
+            yield rx.toast.error("Origin and destination cannot be the same.")
+            return
+
+        ### method to trigger analysis pipeline starts here
+
+        # bring in the data from user input
+        yield rx.console_log(self.source_airport)
+
+        yield rx.console_log(self.dest_airport)
+
+        yield rx.console_log(str(self.months_back))

@@ -47,9 +47,8 @@ HORIZON_PRESETS = [
     (6, "6M"),
     (12, "1Y"),
     (24, "2Y"),
-    # have had to hardcode 96 here as the extent of the dataset (will have 96 months available soon,)
-    # otherwise its 90 as the dataset only has until half of this year
-    (96, "MAX"),
+    # have had to hardcode 90 here as the extent of the dataset
+    (90, "MAX"),
 ]
 
 
@@ -59,7 +58,7 @@ def airports_card() -> rx.Component:
         rx.vstack(
             rx.heading("Origin Airport", size="6"),
             rx.input(
-                placeholder="e.g., LAX",
+                placeholder="e.g., ONT",
                 value=RouteState.source_airport,
                 on_change=RouteState.set_source_airport,
                 width="100%",
