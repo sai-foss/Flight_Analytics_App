@@ -2,6 +2,7 @@ import reflex as rx
 
 from ..data.airport_list import AIRPORT_DATALIST_ID
 from ..state import RouteState
+from ..data.charts import pie_simple
 from .gradients import delayed_gradient_border_card, gradient_border_card
 
 
@@ -121,7 +122,7 @@ def time_horizon_card() -> rx.Component:
             rx.box(height="1rem"),
             rx.button(
                 rx.heading("Analyze", size="6"),
-                on_click=RouteState.analyze,  # add this handler in RouteState
+                on_click=RouteState.analyze,  # we first checking input, Pi chart runs after yielding "success" after checking inputs
                 variant="solid",
                 border_radius="9999px",
                 height="2.5rem",
@@ -129,6 +130,14 @@ def time_horizon_card() -> rx.Component:
                 spacing="3",
                 align="stretch",
             ),
+            # conditional rendering.
+            rx.cond(
+                # we make below variable available to the method? -> might be unnecessary
+                RouteState.show_pie_flag,  # wont run while false. the analyze button makes it true in the last line after validating inputs then we can run the rendering function
+                pie_simple(),
+                rx.box(),
+            ),
+            rx.box(height="1rem"),
             spacing="3",
             align="stretch",
         ),

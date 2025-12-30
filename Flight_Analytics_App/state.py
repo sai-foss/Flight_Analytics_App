@@ -1,5 +1,6 @@
 import reflex as rx
 
+
 from .data.airport_list import AIRPORT_CODE_SET
 
 
@@ -7,6 +8,19 @@ class RouteState(rx.State):
     source_airport: str = ""
     dest_airport: str = ""
     months_back: int = 3
+
+    show_pie_flag: bool = False  # flag to wait on pie
+
+    # event to make the chart un-render on page reload
+    # we can keep adding new charts to turn off here on reload
+    @rx.event
+    def on_page_load(self):
+        self.show_pie_flag = False
+        # more charts to un-render
+
+    @rx.event
+    def show_pie_chart_func(self):
+        self.show_pie_flag = True
 
     @rx.event
     def set_months_back(self, months: int):
@@ -63,11 +77,14 @@ class RouteState(rx.State):
             yield rx.toast.error("Origin and destination cannot be the same.")
             return
 
-        ### method to trigger analysis pipeline starts here
+        # bring in the data from user input we just checking user input in console log
 
-        # bring in the data from user input
         yield rx.console_log(self.source_airport)
 
         yield rx.console_log(self.dest_airport)
 
         yield rx.console_log(str(self.months_back))
+
+        yield rx.toast.success("Generating Graphs")
+
+        yield RouteState.show_pie_chart_func()
