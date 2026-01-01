@@ -2,11 +2,13 @@ import reflex as rx
 import duckdb as ddb
 from .data.network_graph import ab_graph_png_data_url  # the network graph func
 from .data.database import (
-    route_query_scheduled,
-    route_query_delayed,
-    route_query_weather_delayed,
-    route_query_cancelled,
+    route_query_scheduled,  # used for network graph
+    on_time_count,
+    cancelled_count,
+    delayed_count,
+    diverted_count,
 )
+from pathlib import Path
 
 
 from .data.airport_list import AIRPORT_CODE_SET
@@ -21,9 +23,13 @@ class RouteState(rx.State):
     network_graph_weight: int = 0  # the initial weight of the edge in the network graph
     show_pie_flag: bool = False  # flag to wait on pie
 
+    # similar to how we bringing in self.network_graph_weight variable we gotta do it for the other 2 elements in the
+    # network graph -> source airport and destination airport so that we can use them in the graph generation function
     @rx.var
     def network_graph_src(self) -> str:
-        return ab_graph_png_data_url(self.network_graph_weight)
+        return ab_graph_png_data_url(
+            self.network_graph_weight, self.source_airport, self.dest_airport
+        )
 
     # event to make the chart un-render on page reload
     # we can keep adding new charts to turn off here on reload
@@ -108,45 +114,68 @@ class RouteState(rx.State):
         cloud_path = "/var/data/combinedv2.parquet"
         local_path = "/home/sai/Downloads/combinedv2.parquet"
 
+        # computing this outside so we can reuse it
+        on_time_count_var = on_time_count(
+            ddb=ddb,
+            parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+            month_count=str(
+                self.months_back
+            ),  # for cloud path use "/var/data/combinedv2.parquet"
+            source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
+            dest_airport=self.dest_airport,
+        )
+
+        cancelled_count_var = cancelled_count(
+            ddb=ddb,
+            parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+            month_count=str(
+                self.months_back
+            ),  # for cloud path use "/var/data/combinedv2.parquet"
+            source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
+            dest_airport=self.dest_airport,
+        )
+
+        delayed_count_var = delayed_count(
+            ddb=ddb,
+            parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+            month_count=str(
+                self.months_back
+            ),  # for cloud path use "/var/data/combinedv2.parquet"
+            source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
+            dest_airport=self.dest_airport,
+        )
+
+        diverted_count_var = diverted_count(
+            ddb=ddb,
+            parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+            month_count=str(
+                self.months_back
+            ),  # for cloud path use "/var/data/combinedv2.parquet"
+            source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
+            dest_airport=self.dest_airport,
+        )
+
+        # here we are rendering the pie chart
         self.pie_data = [
             {
-                "name": "Total Delayed",
-                "value": route_query_delayed(
-                    ddb=ddb,
-                    parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
-                    month_count=str(
-                        self.months_back
-                    ),  # for cloud path use "/var/data/combinedv2.parquet"
-                    source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
-                    dest_airport=self.dest_airport,
-                ),
-                "fill": "#3e63dd",
+                "name": "On Time Flights",
+                "value": on_time_count_var,
+                "fill": "#9B5DE5",
             },
             {
-                "name": "Weather Delayed",
-                "value": route_query_weather_delayed(
-                    ddb=ddb,
-                    parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
-                    month_count=str(
-                        self.months_back
-                    ),  # for cloud path use "/var/data/combinedv2.parquet"
-                    source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
-                    dest_airport=self.dest_airport,
-                ),
-                "fill": "yellow",
+                "name": "Delayed",
+                "value": delayed_count_var,
+                "fill": "#F15BB5",
             },
             {
                 "name": "Cancelled",
-                "value": route_query_cancelled(
-                    ddb=ddb,
-                    parquet_path=cloud_path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
-                    month_count=str(
-                        self.months_back
-                    ),  # for cloud path use "/var/data/combinedv2.parquet"
-                    source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
-                    dest_airport=self.dest_airport,
-                ),
-                "fill": "red",
+                "value": cancelled_count_var,
+                "fill": "#FEE440",
+            },
+            {
+                "name": "Diverted",
+                "value": diverted_count_var,
+                "fill": "#00BBF9",
             },
         ]
 

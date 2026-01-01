@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 
-def ab_graph_png_data_url(weight: float = 500) -> str:
+def ab_graph_png_data_url(
+    weight: float = 500, source_airport: str = "", destination_airport: str = ""
+) -> str:
     G = nx.DiGraph()
     G.add_edge("A", "B")
 
@@ -36,7 +38,7 @@ def ab_graph_png_data_url(weight: float = 500) -> str:
     nx.draw_networkx_labels(
         G,
         pos,
-        labels={"A": "ONT", "B": "DFW"},
+        labels={"A": source_airport, "B": destination_airport},
         font_size=16,
         font_weight="bold",
         font_color="black",

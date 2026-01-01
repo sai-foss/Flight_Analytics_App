@@ -1,9 +1,7 @@
-from typing import Self
 import reflex as rx
 
 from ..data.airport_list import AIRPORT_DATALIST_ID
 from ..state import RouteState
-from ..data.network_graph import ab_graph_png_data_url
 
 from .gradients import delayed_gradient_border_card, gradient_border_card
 
@@ -152,8 +150,8 @@ def time_horizon_card() -> rx.Component:
                         data=RouteState.pie_data,
                         data_key="value",
                         name_key="name",
-                        fill="#8884d8",
                         label=True,
+                        padding_angle=3,
                     ),
                     rx.recharts.legend(),
                     width="100%",
