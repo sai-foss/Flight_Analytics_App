@@ -116,7 +116,7 @@ class RouteState(rx.State):
         path = ""
         if getpass.getuser() == "sai":
             path = local_path
-        elif getpass.getpass() == "render":
+        else:
             path = cloud_path
 
         # computing this outside so we can reuse it
