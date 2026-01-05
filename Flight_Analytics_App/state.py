@@ -1,6 +1,7 @@
 import reflex as rx
 import duckdb as ddb
 from pathlib import Path
+import httpx
 
 from .data.network_graph import ab_graph_png_data_url  # the network graph func
 from .data.database import (

@@ -1,7 +1,7 @@
 import reflex as rx
 
 # list of airports IATA codes
-AIRPORT_CODES: list[str] = [
+AIRPORT_CODES_unsorted: list[str] = [
     "LAS",
     "GEG",
     "OAK",
@@ -396,6 +396,8 @@ AIRPORT_CODES: list[str] = [
     "BIH",
     "FMN",
 ]
+
+AIRPORT_CODES = sorted(AIRPORT_CODES_unsorted)  # sorted the list
 
 
 AIRPORT_CODE_SET = set(AIRPORT_CODES)
