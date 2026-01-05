@@ -164,6 +164,20 @@ class RouteState(rx.State):
             dest_airport=self.dest_airport,
         )
 
+        # literally the worst way to do this
+        # but if a value is zero we can make it none so it wont render
+        if on_time_count_var == 0:
+            on_time_count_var = None
+
+        if delayed_count_var == 0:
+            delayed_count_var = None
+
+        if cancelled_count_var == 0:
+            cancelled_count_var = None
+
+        if diverted_count_var == 0:
+            diverted_count_var = None
+
         # here we are rendering the pie chart
         self.pie_data = [
             {

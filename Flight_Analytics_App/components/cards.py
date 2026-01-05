@@ -148,12 +148,13 @@ def time_horizon_card() -> rx.Component:
                 rx.recharts.pie_chart(
                     rx.recharts.pie(
                         data=RouteState.pie_data,
-                        outer_radius="70%",
+                        outer_radius="73%",  # adhoc tweak
                         data_key="value",
                         stroke="transparent",  # removes the black borders
                         name_key="name",
                         label=True,
                         padding_angle=5,
+                        label_line=False,
                     ),
                     rx.recharts.legend(),
                     width="100%",

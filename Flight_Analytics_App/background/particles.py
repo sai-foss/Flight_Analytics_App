@@ -33,7 +33,7 @@ PARTICLES_CONFIG = {
 
 
 # render the particles
-#
+# we copy pasted the script from the particles.js website
 def particles_background() -> rx.Component:
     cfg = json.dumps(PARTICLES_CONFIG)
 
