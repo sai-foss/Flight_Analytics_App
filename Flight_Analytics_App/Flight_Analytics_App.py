@@ -3,7 +3,7 @@
 import reflex as rx
 
 from .background.background import page_shell
-from .components.cards import all_cards
+from .components.cards import all_cards, new_card
 from .state import RouteState
 
 
@@ -21,5 +21,9 @@ def index() -> rx.Component:
 
 # below basically the entry point for the app
 
-app = rx.App(theme=rx.theme(appearance="dark", has_background=False))
+app = rx.App(
+    theme=rx.theme(
+        appearance="dark", has_background=True, panel_background="translucent"
+    )
+)
 app.add_page(index, on_load=RouteState.on_page_load)

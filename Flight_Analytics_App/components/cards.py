@@ -1,4 +1,6 @@
+from numpy import hstack
 import reflex as rx
+from reflex.components.radix.themes.base import LiteralAccentColor
 
 from ..data.airport_list import AIRPORT_DATALIST_ID
 from ..state import RouteState
@@ -31,6 +33,7 @@ def all_cards() -> rx.Component:
         ),
         airports_card(),
         time_horizon_card(),
+        new_card(),
         width="100%",
         max_width="72rem",
         margin_top=rx.breakpoints(initial="1rem", md="2rem"),
@@ -57,7 +60,13 @@ HORIZON_PRESETS = [
 def airports_card() -> rx.Component:
     return gradient_border_card(
         rx.vstack(
-            rx.heading("Origin Airport", size="6"),
+            rx.hstack(
+                rx.heading("Origin Airport", size="6"),
+                rx.icon(tag="plane_takeoff"),
+                width="100%",
+                justify="between",
+                align="center",
+            ),
             rx.input(
                 placeholder="e.g., ONT",
                 value=RouteState.source_airport,
@@ -70,7 +79,13 @@ def airports_card() -> rx.Component:
                 list=AIRPORT_DATALIST_ID,
             ),
             rx.box(height="0.75rem"),
-            rx.heading("Destination Airport", size="6"),
+            rx.hstack(
+                rx.heading("Destination Airport", size="6"),
+                rx.icon(tag="plane_landing"),
+                width="100%",
+                justify="between",
+                align="center",
+            ),
             rx.input(
                 placeholder="e.g., DFW",
                 value=RouteState.dest_airport,
@@ -104,10 +119,12 @@ def airports_card() -> rx.Component:
 def time_horizon_card() -> rx.Component:
     return gradient_border_card(
         rx.vstack(
-            rx.heading(
-                "Time Horizon",
-                size="6",
-                text_align="center",
+            rx.hstack(
+                rx.heading("Time Horizon", size="6"),
+                rx.icon(tag="calendars"),
+                width="100%",
+                justify="between",
+                align="center",
             ),
             rx.flex(
                 *[
@@ -165,4 +182,76 @@ def time_horizon_card() -> rx.Component:
             align="stretch",
         ),
         width=rx.breakpoints(initial="100%", md="calc(50% - 0.5rem)"),
+    )
+
+
+def new_card(
+    stat_name: str = "Users",
+    value: int = 4200,
+    prev_value: int = 3000,
+    icon: str = "users",
+    badge_color: LiteralAccentColor = "blue",
+):
+    percentage_change = (
+        (
+            round(((value - prev_value) / prev_value) * 100, 2)
+            if prev_value != 0
+            else 0 if value == 0 else float("inf")
+        ),
+    )
+    change = "increase" if value > prev_value else "decrease"
+    arrow_icon = "trending-up" if value > prev_value else "trending-down"
+    arrow_color = "grass" if value > prev_value else "tomato"
+    return gradient_border_card(
+        rx.hstack(
+            rx.vstack(
+                rx.hstack(
+                    rx.badge(
+                        rx.icon(tag=icon, size=34),
+                        color_scheme=badge_color,
+                        radius="full",
+                        padding="0.7rem",
+                    ),
+                    rx.vstack(
+                        rx.heading(f"{value:,}", size="6", weight="bold"),
+                        rx.text(stat_name, size="4", weight="medium"),
+                        spacing="3",
+                        height="100%",
+                        align_items="start",
+                        width="100%",
+                    ),
+                    height="100%",
+                    spacing="3",
+                    align="center",
+                    width="100%",
+                ),
+                rx.hstack(
+                    rx.hstack(
+                        rx.icon(
+                            tag=arrow_icon, size=24, color=rx.color(arrow_color, 9)
+                        ),
+                        rx.text(
+                            f"{percentage_change}%",
+                            size="3",
+                            color=rx.color(arrow_color, 9),
+                            weight="medium",
+                        ),
+                        spacing="3",
+                        align="center",
+                    ),
+                    rx.text(
+                        f"{change} from last month",
+                        size="2",
+                        color=rx.color("gray", 10),
+                    ),
+                    align="center",
+                    width="100%",
+                ),
+                spacing="3",
+            ),
+            size="3",
+            width="100%",
+            max_width="21rem",
+            align="start",
+        ),
     )
