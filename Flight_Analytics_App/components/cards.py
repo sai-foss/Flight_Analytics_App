@@ -162,7 +162,7 @@ def airports_card() -> rx.Component:
                             width="100%",
                             height="auto",
                         ),
-                        # CURRENT WEATHER  here, FORECAST in TIME HORIZON CARD
+                        # CURRENT WEATHER  here, FORECAST in TIME HORIZON CARD, uses the show_pie_flag to render
                         rx.box(
                             rx.vstack(
                                 rx.hstack(
