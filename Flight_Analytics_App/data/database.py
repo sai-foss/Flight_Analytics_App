@@ -154,3 +154,30 @@ def ICAO_conversion(ddb, IATA_input):
 
 # example usage
 # print(ICAO_conversion(ddb, "ONT"))    # -> KONT
+
+
+# calculate percentages
+
+
+def percent_calc(
+    total_count, on_time_count, delayed_count, cancelled_count, diverted_count
+):
+    try:
+        on_time_count_per = (on_time_count / total_count) * 100
+    except ZeroDivisionError:
+        on_time_count_per = 0
+    try:
+        delayed_count_per = (delayed_count / total_count) * 100
+    except ZeroDivisionError:
+        delayed_count_per = 0
+    try:
+        cancelled_count_per = (cancelled_count / total_count) * 100
+    except ZeroDivisionError:
+        cancelled_count_per = 0
+
+    try:
+        diverted_count_per = (diverted_count / total_count) * 100
+    except ZeroDivisionError:
+        diverted_count_per = 0
+
+    return on_time_count_per, delayed_count_per, cancelled_count_per, diverted_count_per

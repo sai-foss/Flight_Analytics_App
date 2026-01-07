@@ -6,6 +6,7 @@ import httpx
 
 from .data.network_graph import ab_graph_png_data_url  # the network graph func
 from .data.database import (
+    percent_calc,
     route_query_scheduled,  # used for network graph
     on_time_count,
     cancelled_count,
@@ -257,6 +258,43 @@ class RouteState(rx.State):
             dest_airport=self.dest_airport,
         )
 
+        # putting this in the network graph
+        self.network_graph_weight = route_query_scheduled(
+            ddb=ddb,
+            parquet_path=path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
+            month_count=str(
+                self.months_back
+            ),  # for cloud path use "/var/data/combinedv2.parquet"
+            source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
+            dest_airport=self.dest_airport,
+        )
+
+        # percent count to insert into legend or pi chart itself
+        # self.network_graph_weight is the total scheduled number flight
+
+        on_time_count_per = 0
+        delayed_count_per = 0
+        cancelled_count_per = 0
+        diverted_count_per = 0
+
+        (
+            on_time_count_per,
+            delayed_count_per,
+            cancelled_count_per,
+            diverted_count_per,
+        ) = percent_calc(
+            self.network_graph_weight,
+            on_time_count_var,
+            delayed_count_var,
+            delayed_count_var,
+            diverted_count_var,
+        )
+
+        on_time_count_per = round(on_time_count_per, 1)
+        delayed_count_per = round(delayed_count_per, 1)
+        cancelled_count_per = round(cancelled_count_per, 1)
+        diverted_count_per = round(diverted_count_per, 1)
+
         # literally the worst way to do this
         # but if a value is zero we can make it none so it wont render
         if on_time_count_var == 0:
@@ -274,37 +312,26 @@ class RouteState(rx.State):
         # here we are rendering the pie chart
         self.pie_data = [
             {
-                "name": "On Time Flights",
+                "name": f"On Time/Schedule Flights {on_time_count_per}%",
                 "value": on_time_count_var,
                 "fill": "#9B5DE5",
             },
             {
-                "name": "Delayed",
+                "name": f"Delayed {delayed_count_per}%",
                 "value": delayed_count_var,
                 "fill": "#F15BB5",
             },
             {
-                "name": "Cancelled",
+                "name": f"Cancelled {cancelled_count_per}%",
                 "value": cancelled_count_var,
                 "fill": "#FEE440",
             },
             {
-                "name": "Diverted",
+                "name": f"Diverted {diverted_count_per}%",
                 "value": diverted_count_var,
                 "fill": "#00BBF9",
             },
         ]
-
-        # putting this in the network graph
-        self.network_graph_weight = route_query_scheduled(
-            ddb=ddb,
-            parquet_path=path,  # for local path use this "/home/sai/Downloads/combinedv2.parquet"
-            month_count=str(
-                self.months_back
-            ),  # for cloud path use "/var/data/combinedv2.parquet"
-            source_airport=self.source_airport,  # prefer absolute paths for ease of use when hardcoding
-            dest_airport=self.dest_airport,
-        )
 
         yield self.show_pie_chart_func()
 
