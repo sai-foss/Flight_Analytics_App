@@ -1,10 +1,66 @@
-from numpy import hstack
 import reflex as rx
 
 from ..data.airport_list import AIRPORT_DATALIST_ID
 from ..state import RouteState
 
 from .gradients import delayed_gradient_border_card, gradient_border_card
+
+
+# tooltip for mobile
+from reflex.components.radix.themes.base import LiteralAccentColor
+
+
+def tip_button(
+    label: str,
+    content: str,
+    color: LiteralAccentColor = "blue",
+    variant: str = "soft",
+) -> rx.Component:
+    def make_btn():
+        return rx.button(label, variant=variant, size="3", color_scheme=color)
+
+    desktop_btn = make_btn()
+    mobile_btn = make_btn()
+
+    desktop = rx.box(
+        rx.hover_card.root(
+            rx.hover_card.trigger(desktop_btn),
+            rx.hover_card.content(
+                rx.text(
+                    content,
+                    size="4",
+                    line_height="1",
+                    weight="medium",
+                ),
+                side="top",
+                align="center",
+                size="1",  # hovercard padding scale
+                style={"max_width": "25rem"},
+            ),
+        ),
+        display=rx.breakpoints(initial="none", md="block"),
+    )
+
+    mobile = rx.box(
+        rx.popover.root(
+            rx.popover.trigger(mobile_btn),
+            rx.popover.content(
+                rx.text(
+                    content,
+                    size="5",
+                    line_height="1",
+                    weight="medium",
+                ),
+                side="top",
+                align="center",
+                padding="1rem",
+                style={"max_width": "25rem"},
+            ),
+        ),
+        display=rx.breakpoints(initial="block", md="none"),
+    )
+
+    return rx.box(desktop, mobile)
 
 
 # display all our "cards"
@@ -120,11 +176,13 @@ def airports_card() -> rx.Component:
                                     rx.card(
                                         rx.text(RouteState.dest_airport),
                                     ),
-                                    rx.card(
-                                        rx.tooltip(
-                                            rx.text("Bruh"),
-                                            content="This is the bruh content.",
+                                    rx.hstack(
+                                        tip_button(
+                                            "VFH",
+                                            "CAUTIOUS",
+                                            "blue",
                                         ),
+                                        rx.icon(tag="pointer"),
                                     ),
                                     width="100%",
                                     align="center",
