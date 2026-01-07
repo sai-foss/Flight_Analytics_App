@@ -1,6 +1,5 @@
 from numpy import hstack
 import reflex as rx
-from reflex.components.radix.themes.base import LiteralAccentColor
 
 from ..data.airport_list import AIRPORT_DATALIST_ID
 from ..state import RouteState
@@ -33,7 +32,7 @@ def all_cards() -> rx.Component:
         ),
         airports_card(),
         time_horizon_card(),
-        new_card(),
+        # new weather cards
         width="100%",
         max_width="72rem",
         margin_top=rx.breakpoints(initial="1rem", md="2rem"),
@@ -101,11 +100,46 @@ def airports_card() -> rx.Component:
                 # we can literally use the same pi chart flag for the network graph
                 RouteState.show_pie_flag,  # wont run while false. the analyze button makes it true in the last line after validating inputs then we can run the rendering function
                 rx.box(
-                    rx.image(
-                        src=RouteState.network_graph_src,  # weight of the edge in the network graph
-                        width="100%",
-                        height="auto",
-                    )
+                    rx.vstack(
+                        rx.image(
+                            src=RouteState.network_graph_src,  # weight of the edge in the network graph
+                            width="100%",
+                            height="auto",
+                        ),
+                        # CURRENT WEATHER  here, FORECAST in TIME HORIZON CARD
+                        rx.box(
+                            rx.vstack(
+                                rx.hstack(
+                                    rx.heading("Current Weather status", size="6"),
+                                    rx.spacer(),
+                                    rx.icon(tag="cloud_sun_rain"),
+                                    width="100%",
+                                    align="center",
+                                ),
+                                rx.hstack(
+                                    rx.card(
+                                        rx.text(RouteState.dest_airport),
+                                    ),
+                                    rx.card(
+                                        rx.tooltip(
+                                            rx.text("Bruh"),
+                                            content="This is the bruh content.",
+                                        ),
+                                    ),
+                                    width="100%",
+                                    align="center",
+                                    justify="between",
+                                ),
+                                rx.card(
+                                    rx.text(RouteState.source_airport),
+                                ),
+                                spacing="3",
+                                width="100%",
+                                align="stretch",
+                            ),
+                            width="100%",
+                        ),
+                    ),
                 ),
             ),
             spacing="3",
@@ -182,76 +216,4 @@ def time_horizon_card() -> rx.Component:
             align="stretch",
         ),
         width=rx.breakpoints(initial="100%", md="calc(50% - 0.5rem)"),
-    )
-
-
-def new_card(
-    stat_name: str = "Users",
-    value: int = 4200,
-    prev_value: int = 3000,
-    icon: str = "users",
-    badge_color: LiteralAccentColor = "blue",
-):
-    percentage_change = (
-        (
-            round(((value - prev_value) / prev_value) * 100, 2)
-            if prev_value != 0
-            else 0 if value == 0 else float("inf")
-        ),
-    )
-    change = "increase" if value > prev_value else "decrease"
-    arrow_icon = "trending-up" if value > prev_value else "trending-down"
-    arrow_color = "grass" if value > prev_value else "tomato"
-    return gradient_border_card(
-        rx.hstack(
-            rx.vstack(
-                rx.hstack(
-                    rx.badge(
-                        rx.icon(tag=icon, size=34),
-                        color_scheme=badge_color,
-                        radius="full",
-                        padding="0.7rem",
-                    ),
-                    rx.vstack(
-                        rx.heading(f"{value:,}", size="6", weight="bold"),
-                        rx.text(stat_name, size="4", weight="medium"),
-                        spacing="3",
-                        height="100%",
-                        align_items="start",
-                        width="100%",
-                    ),
-                    height="100%",
-                    spacing="3",
-                    align="center",
-                    width="100%",
-                ),
-                rx.hstack(
-                    rx.hstack(
-                        rx.icon(
-                            tag=arrow_icon, size=24, color=rx.color(arrow_color, 9)
-                        ),
-                        rx.text(
-                            f"{percentage_change}%",
-                            size="3",
-                            color=rx.color(arrow_color, 9),
-                            weight="medium",
-                        ),
-                        spacing="3",
-                        align="center",
-                    ),
-                    rx.text(
-                        f"{change} from last month",
-                        size="2",
-                        color=rx.color("gray", 10),
-                    ),
-                    align="center",
-                    width="100%",
-                ),
-                spacing="3",
-            ),
-            size="3",
-            width="100%",
-            max_width="21rem",
-            align="start",
-        ),
     )

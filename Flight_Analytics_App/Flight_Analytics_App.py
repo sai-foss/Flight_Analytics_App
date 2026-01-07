@@ -3,7 +3,7 @@
 import reflex as rx
 
 from .background.background import page_shell
-from .components.cards import all_cards, new_card
+from .components.cards import all_cards
 from .state import RouteState
 
 
