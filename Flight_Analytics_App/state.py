@@ -3,6 +3,7 @@ import duckdb as ddb
 from pathlib import Path
 import httpx
 
+
 from .data.network_graph import ab_graph_png_data_url  # the network graph func
 from .data.database import (
     route_query_scheduled,  # used for network graph
@@ -10,6 +11,7 @@ from .data.database import (
     cancelled_count,
     delayed_count,
     diverted_count,
+    ICAO_conversion,
 )
 
 
@@ -75,6 +77,37 @@ class RouteState(rx.State):
                 "Unknown destination airport code. Pick one from the list."
             )
             return
+
+    source_fltCat = ""
+    dest_fltCat = ""
+
+    # METAR get current weather data -> put here due to circular import issue
+
+    def current_weather_status(self) -> tuple[str, str]:
+
+        src_icao = ICAO_conversion(ddb, self.source_airport)
+        dst_icao = ICAO_conversion(ddb, self.dest_airport)
+
+        origin_resp = httpx.get(
+            "https://aviationweather.gov/api/data/metar",
+            params={"ids": src_icao, "format": "json"},
+            headers={"User-Agent": "wx-test"},
+            timeout=5,
+        )
+        dest_resp = httpx.get(
+            "https://aviationweather.gov/api/data/metar",
+            params={"ids": dst_icao, "format": "json"},
+            headers={"User-Agent": "wx-test"},
+            timeout=5,
+        )
+
+        origin_status = origin_resp.json()
+        dest_status = dest_resp.json()
+
+        return (
+            (origin_status[0]["fltCat"]),
+            (dest_status[0]["fltCat"]),
+        )
 
     @rx.event
     def analyze(self):
@@ -214,3 +247,6 @@ class RouteState(rx.State):
         )
 
         yield self.show_pie_chart_func()
+
+        self.source_fltCat, self.dest_fltCat = self.current_weather_status()
+        ### TO DO: MAKE WEATHER FETCH -> ASYNC I JUST PUT A 5s TIMEOUT + its the last thing that gets populated

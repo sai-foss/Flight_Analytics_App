@@ -146,7 +146,7 @@ def diverted_count(ddb, parquet_path, month_count, source_airport, dest_airport)
 # for converting between IATA -> ICAO which is needed for the GET response from TAF and METAR
 def ICAO_conversion(ddb, IATA_input):
     sql = """
-    SELECT  icao  from 'iata-icao.parquet'
+    SELECT  icao  from 'Flight_Analytics_App/data/iata-icao.parquet'
     WHERE iata = ?
     """
     return ddb.execute(sql, [IATA_input]).fetchone()[0]

@@ -80,7 +80,7 @@ def all_cards() -> rx.Component:
         gradient_border_card(
             # card to get the top right text
             rx.heading(
-                "Check route metrics and our predictions",
+                "Check route metrics and weather information",
                 size="6",
             ),
             width=rx.breakpoints(initial="100%", md="50%"),
@@ -174,12 +174,12 @@ def airports_card() -> rx.Component:
                                 ),
                                 rx.hstack(
                                     rx.card(
-                                        rx.text(RouteState.dest_airport),
+                                        rx.text(RouteState.source_airport),
                                     ),
                                     rx.hstack(
                                         tip_button(
-                                            "VFH",
-                                            "CAUTIOUS",
+                                            RouteState.source_fltCat,
+                                            "Origin METAR flight category",
                                             "blue",
                                         ),
                                         rx.icon(tag="pointer"),
@@ -189,7 +189,7 @@ def airports_card() -> rx.Component:
                                     justify="between",
                                 ),
                                 rx.card(
-                                    rx.text(RouteState.source_airport),
+                                    rx.text(RouteState.dest_airport),
                                 ),
                                 spacing="3",
                                 width="100%",
