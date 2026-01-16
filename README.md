@@ -24,7 +24,7 @@ A web application built with Reflex to analyze and visualize historical performa
 
 ## Data Sources
 
-*   **Historical Flight Data**: The application queries a local Parquet file (`combinedv2.parquet`) containing US domestic flight data from 2018 to mid-2025. **Note: This dataset is not included in the repository.**
+*   **Historical Flight Data**: The application queries a local Parquet file containing US domestic flight data from 2018 to mid-2025. [Get the dataset from here](https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGK&QO_fu146_anzr=b0-gvzr) **Note: This dataset is not included in the repository.**
 *   **Airport Codes**: A local Parquet file (`iata-icao.parquet`) is used to convert IATA codes to ICAO codes for weather API requests.
 *   **Weather Data**: Real-time METAR data is fetched from the [Aviation Weather Center API](https://aviationweather.gov/api).
 
